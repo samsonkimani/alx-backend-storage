@@ -1,9 +1,13 @@
 -- sql to create a table users in holberton
 -- using enum in table columns
 
-CREATE TABLE IF NOT EXISTS users(
-	id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	email VARCHAR(255) UNIQUE,
-	name VARCHAR(255),
-	country enum('US', 'CO', 'TN') NOT NULL DEFAULT 'US'
-	);	
+-- Check if the table already exists
+IF NOT EXISTS (SELECT * FROM information_schema.tables WHERE table_name = 'users') THEN
+    -- Create the table
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        name VARCHAR(255),
+        country ENUM('US', 'CO', 'TN') NOT NULL DEFAULT 'US'
+    );
+END IF;
