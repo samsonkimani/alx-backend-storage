@@ -11,6 +11,7 @@ if __name__ == "__main__":
     collection = client.logs.nginx
 
     print(f"{collection.count_documents({})} logs")
+    print("Methods:")
 
     methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
     for method in methods:
