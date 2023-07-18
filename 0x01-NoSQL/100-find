@@ -1,0 +1,2 @@
+// list all names statring with holberton
+db.school.find({ name: /^Holberton/ })
