@@ -1,0 +1,4 @@
+// a script to match all documents with the name holberton school
+db.school.aggregate(
+[{ $match : { name : "Holberton school" }}]
+);
