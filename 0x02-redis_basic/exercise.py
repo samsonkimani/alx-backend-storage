@@ -10,6 +10,7 @@ from typing import Union
 from collections.abc import Callable
 from functools import wraps
 
+
 class Cache:
     """ cache"""
 
@@ -28,7 +29,20 @@ class Cache:
             return method(self, *args, **kwargs)
         return wrapper
 
-    @count_calls
+    def call_history(method: Callable) -> Callable:
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            inputs_key = f"{method.__qualname__}:inputs"
+            outputs_key = f"{method.__qualname__}:outputs"
+            self._redis.rpush(inputs_key, str(args))
+            result = method(self, *args, **kwargs)
+            self._redis.rpush(outputs_key, result)
+
+            return result
+
+        return wrapper
+
+    @call_history
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """ a class store that takes in data"""
         id = str(uuid4())
