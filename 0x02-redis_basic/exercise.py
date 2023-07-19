@@ -7,6 +7,7 @@ creating the cache class for the redis model
 from uuid import uuid4
 import redis
 from typing import Union
+from collections.abc import Collable
 
 T = TypeVar('T')
 
@@ -27,3 +28,23 @@ class Cache:
             data = str(data)
         self._redis.set(id, data)
         return id
+
+    def get(
+            self,
+            key: str,
+            fn: Collable[[] None]
+    ) -> Union[str, bytes, int, None]:
+        data = self._redis.get(key)
+        if data is None:
+            return None
+
+        if fn is not None:
+            return fn(data)
+
+    def get_str(self, key: str) -> Union[str, bytes, None]:
+        """ get str function"""
+        return self.get(key, fn=lambda d: d.decode('utf-8'))
+
+    def get_int(self, key: str) -> Union[int, bytes, None]:
+        """ get int method"""
+        return self.get(key, fn=int)
