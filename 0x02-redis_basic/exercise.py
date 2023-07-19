@@ -7,10 +7,8 @@ creating the cache class for the redis model
 from uuid import uuid4
 import redis
 from typing import Union
-from collections.abc import Collable
-
-T = TypeVar('T')
-
+from collections.abc import Callable
+from functools import wraps
 
 class Cache:
     """ cache"""
@@ -20,6 +18,17 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    def count_calls(method: Callable) -> Callable:
+        """ creating a wrapper function"""
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            key = method.__qualname__
+            count_key = key + "_count"
+            self._redis.incr(count_key)
+            return method(self, *args, **kwargs)
+        return wrapper
+
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """ a class store that takes in data"""
         id = str(uuid4())
@@ -32,7 +41,7 @@ class Cache:
     def get(
             self,
             key: str,
-            fn: Collable[[] None]
+            fn: Callable[[], None] = None
     ) -> Union[str, bytes, int, None]:
         data = self._redis.get(key)
         if data is None:
